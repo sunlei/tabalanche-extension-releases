@@ -35,9 +35,9 @@ jobs:
         run: |
           pnpm install --global web-ext
 
-      - name: Set CalVer version
+      - name: Set version
         run: |
-          echo "CALVER_VERSION=$(date +'%Y.%m.%d.%H%M')" >> $GITHUB_ENV
+          CALVER_VERSION=$(date +'%Y.%m.%d.%H%M')
           echo "ARTIFACT_NAME=tabalanche-${CALVER_VERSION}.xpi" >> $GITHUB_ENV
 
       - name: Build extension

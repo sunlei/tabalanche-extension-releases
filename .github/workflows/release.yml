@@ -40,14 +40,18 @@ jobs:
           CALVER_VERSION=$(date +'%Y.%m.%d.%H%M')
           echo "ARTIFACT_NAME=tabalanche-${CALVER_VERSION}.xpi" >> $GITHUB_ENV
 
-      - name: Build extension
+      # - name: Build extension
+      #   run: |
+      #     web-ext build --source-dir src --filename ${{ env.ARTIFACT_NAME }}
+      #     ls -alh .
+      #     ls -alh web-ext-artifacts
+
+      - name: Build and sign extension
         run: |
-          web-ext build --source-dir src --filename ${{ env.ARTIFACT_NAME }}
+          web-ext sign \
+            --source-dir src \
+            --filename ${{ env.ARTIFACT_NAME }} \
+            --api-key ${{ secrets.AMO_JWT_ISSUER }} \
+            --api-secret ${{ secrets.AMO_JWT_SECRET }}
           ls -alh .
           ls -alh web-ext-artifacts
-
-      # - name: Build and sign extension
-      #   run: |
-      #     web-ext sign \
-      #       --api-key ${{ secrets.AMO_JWT_ISSUER }} \
-      #       --api-secret ${{ secrets.AMO_JWT_SECRET }}

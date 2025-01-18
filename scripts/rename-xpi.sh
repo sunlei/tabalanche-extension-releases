@@ -5,7 +5,7 @@ set -o errexit  # set -e
 set -o errtrace # set -E
 set -o pipefail
 
-XPI_FILE_COUNT=$(ls -1 "$WEB_EXT_ARTIFACTS_DIR/*.xpi" | wc -l)
+XPI_FILE_COUNT=$(ls -1 "$WEB_EXT_ARTIFACTS_DIR"/*.xpi | wc -l)
 
 if [ "$XPI_FILE_COUNT" -ne 1 ]; then
     echo "Expected 1 xpi file, found $XPI_FILE_COUNT"

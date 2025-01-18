@@ -64,16 +64,16 @@ jobs:
       #     ls -alh .
       #     ls -alh web-ext-artifacts
 
-      # - name: Build and sign extension
-      #   run: |
-      #     web-ext sign \
-      #       --source-dir src \
-      #       --channel unlisted \
-      #       --api-key ${{ secrets.AMO_JWT_ISSUER }} \
-      #       --api-secret ${{ secrets.AMO_JWT_SECRET }}
-      #     ls -alh .
-      #     ls -alh web-ext-artifacts
-
-      - name: Update updates.json
+      - name: Build and sign extension
         run: |
-          bash scripts/update-updates.sh
+          web-ext sign \
+            --source-dir src \
+            --channel unlisted \
+            --api-key ${{ secrets.AMO_JWT_ISSUER }} \
+            --api-secret ${{ secrets.AMO_JWT_SECRET }}
+          ls -alh .
+          ls -alh web-ext-artifacts
+
+      # - name: Update updates.json
+      #   run: |
+      #     bash scripts/update-updates.sh

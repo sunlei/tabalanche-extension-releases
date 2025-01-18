@@ -95,9 +95,10 @@ jobs:
 
       - name: Git commit updates.json
         run: |
-          git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Action 🤖"
+          git config --local user.email "actions@github.com"
 
+          rm -rf src
           git add ./updates.json
           git commit -m "feat: release v${{ env.CALVER_VERSION }}"
           git push

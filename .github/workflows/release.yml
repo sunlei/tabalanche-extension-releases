@@ -54,7 +54,7 @@ jobs:
           echo "CALVER_VERSION=${CALVER_VERSION}" >> $GITHUB_ENV
           echo "ARTIFACT_NAME=tabalanche-${CALVER_VERSION}.xpi" >> $GITHUB_ENV
 
-      - name: Update manifest.json with version
+      - name: Update manifest.json
         run: |
           bash scripts/update-manifest.sh
 

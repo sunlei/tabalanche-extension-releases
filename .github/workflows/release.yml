@@ -53,30 +53,7 @@ jobs:
 
       - name: Update manifest.json with version
         run: |
-          jq \
-            --arg version "$CALVER_VERSION" \
-            '.version = $version' \
-            src/manifest.json > /tmp/manifest.tmp.json
-          mv /tmp/manifest.tmp.json src/manifest.json
-          cat src/manifest.json
-
-      - name: Update manifest.json with gecko.id
-        run: |
-          jq \
-            --arg gecko_id "${{ env.GECKO_ID }}" \
-            '.browser_specific_settings.gecko.id = $gecko_id' \
-            src/manifest.json > /tmp/manifest.tmp.json
-          mv /tmp/manifest.tmp.json src/manifest.json
-          cat src/manifest.json
-
-      - name: Update manifest.json with gecko.update_url
-        run: |
-          jq \
-            --arg update_url "${{ env.UPDATE_URL }}" \
-            '.browser_specific_settings.gecko.update_url = $update_url' \
-            src/manifest.json > /tmp/manifest.tmp.json
-          mv /tmp/manifest.tmp.json src/manifest.json
-          cat src/manifest.json
+          bash scripts/update-manifest.sh
 
       # - name: Build extension
       #   run: |

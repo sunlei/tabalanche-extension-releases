@@ -8,6 +8,7 @@ on: workflow_dispatch
 env:
   GECKO_ID: tabalanche-extension@huaidan.org
   UPDATE_URL: https://raw.githubusercontent.com/sunlei/tabalanche-extension-releases/master/updates.json
+  WEB_EXT_ARTIFACTS_DIR: web-ext-artifacts
 
 jobs:
   publish-tabalanche:
@@ -62,7 +63,7 @@ jobs:
       #   run: |
       #     web-ext build --source-dir src --filename ${{ env.ARTIFACT_NAME }}
       #     ls -alh .
-      #     ls -alh web-ext-artifacts
+      #     ls -alh ${{ env.WEB_EXT_ARTIFACTS_DIR }}
 
       - name: Build and sign extension
         run: |
@@ -72,7 +73,11 @@ jobs:
             --api-key ${{ secrets.AMO_JWT_ISSUER }} \
             --api-secret ${{ secrets.AMO_JWT_SECRET }}
           ls -alh .
-          ls -alh web-ext-artifacts
+          ls -alh ${{ env.WEB_EXT_ARTIFACTS_DIR }}
+
+      - name: Rename signed extension
+        run: |
+          bash scripts/rename-xpi.sh
 
       # - name: Update updates.json
       #   run: |

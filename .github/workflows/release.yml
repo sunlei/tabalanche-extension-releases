@@ -14,6 +14,7 @@ jobs:
         with:
           repository: eight04/tabalanche-extension
           ref: dev-dup
+          path: src
 
       - name: ls
         run: |
@@ -34,9 +35,14 @@ jobs:
         run: |
           pnpm install --global web-ext
 
+      - name: Set CalVer version
+        run: |
+          echo "CALVER_VERSION=$(date +'%Y.%m.%d.%H%M')" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME=tabalanche-${CALVER_VERSION}.xpi" >> $GITHUB_ENV
+
       - name: Build extension
         run: |
-          web-ext build
+          web-ext build --source-dir src --filename ${{ env.ARTIFACT_NAME }}
           ls -alh .
           ls -alh web-ext-artifacts
 

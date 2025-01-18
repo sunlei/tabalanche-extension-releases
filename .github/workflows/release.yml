@@ -19,14 +19,16 @@ jobs:
         run: |
           ls -alh .
 
-      # - name: Setup pnpm
-      #   uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 22
 
       - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          # cache: "pnpm" # npm / yarn / pnpm
+          cache: "pnpm" # npm / yarn / pnpm
 
       - name: Install web-ext
         run: |

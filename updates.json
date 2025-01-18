@@ -1,0 +1,12 @@
+{
+  "addons": {
+    "tabalanche-extension@huaidan.org": {
+      "updates": [
+        {
+          "version": "0.1",
+          "update_link": "https://github.com/sunlei/tabalanche-extension-releases/releases/download/v0.1/tabalanche-0.1.xpi"
+        }
+      ]
+    }
+  }
+}

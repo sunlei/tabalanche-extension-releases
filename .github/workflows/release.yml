@@ -73,3 +73,7 @@ jobs:
       #       --api-secret ${{ secrets.AMO_JWT_SECRET }}
       #     ls -alh .
       #     ls -alh web-ext-artifacts
+
+      - name: Update updates.json
+        run: |
+          bash scripts/update-updates.sh

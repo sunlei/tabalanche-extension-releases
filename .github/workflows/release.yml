@@ -50,7 +50,6 @@ jobs:
         run: |
           web-ext sign \
             --source-dir src \
-            --filename ${{ env.ARTIFACT_NAME }} \
             --api-key ${{ secrets.AMO_JWT_ISSUER }} \
             --api-secret ${{ secrets.AMO_JWT_SECRET }}
           ls -alh .

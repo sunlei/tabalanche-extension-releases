@@ -21,5 +21,3 @@ else
     echo "No signed extension found"
     exit 1
 fi
-
-ls -alh "$WEB_EXT_ARTIFACTS_DIR"

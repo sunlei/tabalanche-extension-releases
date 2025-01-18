@@ -26,10 +26,6 @@ jobs:
           ref: dev-dup
           path: src
 
-      - name: ls
-        run: |
-          ls -alh .
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -74,12 +70,12 @@ jobs:
             --channel unlisted \
             --api-key ${{ secrets.AMO_JWT_ISSUER }} \
             --api-secret ${{ secrets.AMO_JWT_SECRET }}
-          ls -alh .
           ls -alh ${{ env.WEB_EXT_ARTIFACTS_DIR }}
 
       - name: Rename signed extension
         run: |
           bash scripts/rename-xpi.sh
+          ls -alh "$WEB_EXT_ARTIFACTS_DIR"
 
       # - uses: actions/upload-artifact@v4
       #   with:

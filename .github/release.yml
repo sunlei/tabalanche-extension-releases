@@ -1,0 +1,42 @@
+name: "release"
+
+on:
+  repository_dispatch:
+    types: [on-demand-release]
+
+jobs:
+  publish-tabalanche:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+        with:
+          repository: eight04/tabalanche-extension
+          ref: dev-dup
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: "pnpm" # npm / yarn / pnpm
+
+      - name: Install web-ext
+        run: |
+          pnpm install --global web-ext
+
+      - name: Build extension
+        run: |
+          web-ext sign \
+            --api-key ${{ secrets.AMO_JWT_ISSUER }} \
+            --api-secret ${{ secrets.AMO_JWT_SECRET }}
+          ls -alh .
+          ls -alh web-ext-artifacts
+
+      # - name: Build and sign extension
+      #   run: |
+      #     web-ext sign \
+      #       --api-key ${{ secrets.AMO_JWT_ISSUER }} \
+      #       --api-secret ${{ secrets.AMO_JWT_SECRET }}

@@ -35,7 +35,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: "pnpm" # npm / yarn / pnpm
+          # cache: "pnpm" # npm / yarn / pnpm
 
       - name: Install web-ext
         run: |

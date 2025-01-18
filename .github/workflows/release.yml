@@ -56,11 +56,20 @@ jobs:
           mv /tmp/manifest.tmp.json src/manifest.json
           cat src/manifest.json
 
-      - name: Update manifest.json with gecko id
+      - name: Update manifest.json with gecko.id
         run: |
           jq \
             --arg gecko_id "tabalanche-extension@huaidan.org" \
             '.browser_specific_settings.gecko.id = $gecko_id' \
+            src/manifest.json > /tmp/manifest.tmp.json
+          mv /tmp/manifest.tmp.json src/manifest.json
+          cat src/manifest.json
+
+      - name: Update manifest.json with gecko.update_url
+        run: |
+          jq \
+            --arg update_url "https://raw.githubusercontent.com/sunlei/tabalanche-extension-releases/master/updates.json" \
+            '.browser_specific_settings.gecko.update_url = $update_url' \
             src/manifest.json > /tmp/manifest.tmp.json
           mv /tmp/manifest.tmp.json src/manifest.json
           cat src/manifest.json

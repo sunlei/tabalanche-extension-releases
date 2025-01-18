@@ -49,7 +49,19 @@ jobs:
 
       - name: Update manifest.json with version
         run: |
-          jq --arg version "$CALVER_VERSION" '.version = $version' src/manifest.json > /tmp/manifest.tmp.json
+          jq \
+            --arg version "$CALVER_VERSION" \
+            '.version = $version' \
+            src/manifest.json > /tmp/manifest.tmp.json
+          mv /tmp/manifest.tmp.json src/manifest.json
+          cat src/manifest.json
+
+      - name: Update manifest.json with gecko id
+        run: |
+          jq \
+            --arg gecko_id "tabalanche-extension@huaidan.org" \
+            '.browser_specific_settings.gecko.id = $gecko_id' \
+            src/manifest.json > /tmp/manifest.tmp.json
           mv /tmp/manifest.tmp.json src/manifest.json
           cat src/manifest.json
 
@@ -59,12 +71,12 @@ jobs:
       #     ls -alh .
       #     ls -alh web-ext-artifacts
 
-      - name: Build and sign extension
-        run: |
-          web-ext sign \
-            --source-dir src \
-            --channel unlisted \
-            --api-key ${{ secrets.AMO_JWT_ISSUER }} \
-            --api-secret ${{ secrets.AMO_JWT_SECRET }}
-          ls -alh .
-          ls -alh web-ext-artifacts
+      # - name: Build and sign extension
+      #   run: |
+      #     web-ext sign \
+      #       --source-dir src \
+      #       --channel unlisted \
+      #       --api-key ${{ secrets.AMO_JWT_ISSUER }} \
+      #       --api-secret ${{ secrets.AMO_JWT_SECRET }}
+      #     ls -alh .
+      #     ls -alh web-ext-artifacts

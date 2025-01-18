@@ -35,10 +35,21 @@ jobs:
         run: |
           pnpm install --global web-ext
 
+      - name: Install jq if not already installed
+        run: |
+          if ! command -v jq &> /dev/null; then
+            sudo apt update && sudo apt install -y jq
+          fi
+
       - name: Set version
         run: |
           CALVER_VERSION=$(date +'%Y.%m.%d.%H%M')
           echo "ARTIFACT_NAME=tabalanche-${CALVER_VERSION}.xpi" >> $GITHUB_ENV
+
+      - name: Update manifest.json with version
+        run: |
+          jq --arg version "$CALVER_VERSION" '.version = $version' src/manifest.json > /tmp/manifest.tmp.json
+          mv /tmp/manifest.tmp.json src/manifest.json
 
       # - name: Build extension
       #   run: |

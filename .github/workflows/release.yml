@@ -15,6 +15,10 @@ jobs:
           repository: eight04/tabalanche-extension
           ref: dev-dup
 
+      - name: ls
+        run: |
+          ls -alh .
+
       # - name: Setup pnpm
       #   uses: pnpm/action-setup@v4
 
@@ -22,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: "pnpm" # npm / yarn / pnpm
+          # cache: "pnpm" # npm / yarn / pnpm
 
       - name: Install web-ext
         run: |

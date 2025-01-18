@@ -44,12 +44,14 @@ jobs:
       - name: Set version
         run: |
           CALVER_VERSION=$(date +'%Y.%m.%d.%H%M')
+          echo "CALVER_VERSION=${CALVER_VERSION}" >> $GITHUB_ENV
           echo "ARTIFACT_NAME=tabalanche-${CALVER_VERSION}.xpi" >> $GITHUB_ENV
 
       - name: Update manifest.json with version
         run: |
           jq --arg version "$CALVER_VERSION" '.version = $version' src/manifest.json > /tmp/manifest.tmp.json
           mv /tmp/manifest.tmp.json src/manifest.json
+          cat src/manifest.json
 
       # - name: Build extension
       #   run: |

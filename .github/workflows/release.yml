@@ -36,9 +36,7 @@ jobs:
 
       - name: Build extension
         run: |
-          web-ext sign \
-            --api-key ${{ secrets.AMO_JWT_ISSUER }} \
-            --api-secret ${{ secrets.AMO_JWT_SECRET }}
+          web-ext build
           ls -alh .
           ls -alh web-ext-artifacts
 

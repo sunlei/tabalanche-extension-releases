@@ -12,6 +12,8 @@ env:
 
 jobs:
   publish-tabalanche:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository `self`
@@ -78,6 +80,18 @@ jobs:
       - name: Rename signed extension
         run: |
           bash scripts/rename-xpi.sh
+
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ env.GECKO_ID }}
+      #     path: ${{ env.WEB_EXT_ARTIFACTS_DIR }}/${{ env.ARTIFACT_NAME }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.WEB_EXT_ARTIFACTS_DIR }}/${{ env.ARTIFACT_NAME }}
+          tag_name: v${{ env.CALVER_VERSION }}
+          name: Release v${{ env.CALVER_VERSION }}
 
       # - name: Update updates.json
       #   run: |

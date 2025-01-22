@@ -19,7 +19,7 @@ jobs:
       - name: Checkout repository `self`
         uses: actions/checkout@v4
 
-      - name: Checkout repository `tabalanche-extension``
+      - name: Checkout repository `tabalanche-extension`
         uses: actions/checkout@v4
         with:
           repository: eight04/tabalanche-extension

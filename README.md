@@ -1,1 +1,1 @@
-# tabalanche-extension-releases
+# firefox-extensions-releases

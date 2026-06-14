@@ -5,7 +5,7 @@ set -o errexit  # set -e
 set -o errtrace # set -E
 set -o pipefail
 
-XPI_URL="https://github.com/sunlei/tabalanche-extension-releases/releases/download/v$CALVER_VERSION/tabalanche-$CALVER_VERSION.xpi"
+XPI_URL="https://github.com/sunlei/firefox-extensions-releases/releases/download/v$CALVER_VERSION/tabalanche-$CALVER_VERSION.xpi"
 
 jq --raw-output \
     --arg GECKO_ID "${GECKO_ID}" \

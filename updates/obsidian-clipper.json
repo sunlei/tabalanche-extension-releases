@@ -1,7 +1,12 @@
 {
   "addons": {
     "obsidian-clipper@huaidan.org": {
-      "updates": []
+      "updates": [
+        {
+          "version": "1.6.3",
+          "update_link": "https://github.com/sunlei/firefox-extensions-releases/releases/download/obsidian-clipper-v1.6.3/obsidian-clipper-1.6.3.xpi"
+        }
+      ]
     }
   }
 }

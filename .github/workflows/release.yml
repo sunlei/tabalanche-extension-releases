@@ -9,6 +9,7 @@ env:
   GECKO_ID: tabalanche-extension@huaidan.org
   UPDATE_URL: https://raw.githubusercontent.com/sunlei/tabalanche-extension-releases/master/updates.json
   WEB_EXT_ARTIFACTS_DIR: web-ext-artifacts
+  EXTENSION_SOURCE_DIR: src/src
 
 jobs:
   publish-tabalanche:
@@ -50,8 +51,8 @@ jobs:
       - name: Set version
         run: |
           CALVER_VERSION=$(date +'%Y.%-m.%-d.%-H%-M')
-          echo "CALVER_VERSION=${CALVER_VERSION}" >> $GITHUB_ENV
-          echo "ARTIFACT_NAME=tabalanche-${CALVER_VERSION}.xpi" >> $GITHUB_ENV
+          echo "CALVER_VERSION=${CALVER_VERSION}" >> "$GITHUB_ENV"
+          echo "ARTIFACT_NAME=tabalanche-${CALVER_VERSION}.xpi" >> "$GITHUB_ENV"
 
       - name: Update manifest.json
         run: |
@@ -66,7 +67,7 @@ jobs:
       - name: Build and sign extension
         run: |
           web-ext sign \
-            --source-dir src \
+            --source-dir "$EXTENSION_SOURCE_DIR" \
             --channel unlisted \
             --api-key ${{ secrets.AMO_JWT_ISSUER }} \
             --api-secret ${{ secrets.AMO_JWT_SECRET }}

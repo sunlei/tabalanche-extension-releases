@@ -1,18 +1,27 @@
-name: "release"
+name: release
 
-on: workflow_dispatch
-# on:
-#   repository_dispatch:
-#     types: [on-demand-release]
+run-name: release ${{ inputs.extension }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      extension:
+        description: Extension to release
+        required: true
+        default: obsidian-clipper
+        type: choice
+        options:
+          - obsidian-clipper
+          - tabalanche
 
 env:
-  GECKO_ID: tabalanche-extension@huaidan.org
-  UPDATE_URL: https://raw.githubusercontent.com/sunlei/tabalanche-extension-releases/master/updates.json
   WEB_EXT_ARTIFACTS_DIR: web-ext-artifacts
-  EXTENSION_SOURCE_DIR: src/src
+  RELEASE_BASE_URL: https://github.com/sunlei/firefox-extensions-releases/releases/download
+  UPDATE_BASE_URL: https://raw.githubusercontent.com/sunlei/firefox-extensions-releases/master
 
 jobs:
-  publish-tabalanche:
+  publish:
+    name: Publish ${{ inputs.extension }}
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -20,7 +29,43 @@ jobs:
       - name: Checkout repository `self`
         uses: actions/checkout@v6
 
+      - name: Configure extension
+        run: |
+          case "${{ inputs.extension }}" in
+            obsidian-clipper)
+              {
+                echo "GECKO_ID=obsidian-clipper@huaidan.org"
+                echo "ARTIFACT_PREFIX=obsidian-clipper"
+                echo "EXTENSION_SOURCE_DIR=src/dist_firefox"
+                echo "UPDATES_FILE=updates/obsidian-clipper.json"
+                echo "UPDATE_URL=$UPDATE_BASE_URL/updates/obsidian-clipper.json"
+              } >> "$GITHUB_ENV"
+              ;;
+            tabalanche)
+              {
+                echo "GECKO_ID=tabalanche-extension@huaidan.org"
+                echo "ARTIFACT_PREFIX=tabalanche"
+                echo "EXTENSION_SOURCE_DIR=src/src"
+                echo "UPDATES_FILE=updates/tabalanche.json"
+                echo "UPDATE_URL=$UPDATE_BASE_URL/updates/tabalanche.json"
+              } >> "$GITHUB_ENV"
+              ;;
+            *)
+              echo "Unsupported extension: ${{ inputs.extension }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Checkout repository `obsidian-clipper`
+        if: inputs.extension == 'obsidian-clipper'
+        uses: actions/checkout@v6
+        with:
+          repository: obsidianmd/obsidian-clipper
+          ref: main
+          path: src
+
       - name: Checkout repository `tabalanche-extension`
+        if: inputs.extension == 'tabalanche'
         uses: actions/checkout@v6
         with:
           repository: eight04/tabalanche-extension
@@ -36,7 +81,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
-          # cache: "pnpm" # npm / yarn / pnpm
 
       - name: Install web-ext
         run: |
@@ -48,21 +92,31 @@ jobs:
             sudo apt update && sudo apt install -y jq
           fi
 
+      - name: Install Obsidian Clipper dependencies
+        if: inputs.extension == 'obsidian-clipper'
+        working-directory: src
+        run: |
+          npm ci
+
+      - name: Build Obsidian Clipper Firefox extension
+        if: inputs.extension == 'obsidian-clipper'
+        working-directory: src
+        run: |
+          npm run build:firefox
+
       - name: Set version
         run: |
-          CALVER_VERSION=$(date +'%Y.%-m.%-d.%-H%-M')
-          echo "CALVER_VERSION=${CALVER_VERSION}" >> "$GITHUB_ENV"
-          echo "ARTIFACT_NAME=tabalanche-${CALVER_VERSION}.xpi" >> "$GITHUB_ENV"
+          TIME_VERSION=$((10#$(date +'%H') * 10000 + 10#$(date +'%M') * 100 + 10#$(date +'%S')))
+          CALVER_VERSION="$(date +'%Y.%-m.%-d').${TIME_VERSION}"
+          {
+            echo "CALVER_VERSION=${CALVER_VERSION}"
+            echo "ARTIFACT_NAME=${ARTIFACT_PREFIX}-${CALVER_VERSION}.xpi"
+            echo "RELEASE_TAG=${ARTIFACT_PREFIX}-v${CALVER_VERSION}"
+          } >> "$GITHUB_ENV"
 
       - name: Update manifest.json
         run: |
           bash scripts/update-manifest.sh
-
-      # - name: Build extension
-      #   run: |
-      #     web-ext build --source-dir src --filename ${{ env.ARTIFACT_NAME }}
-      #     ls -alh .
-      #     ls -alh ${{ env.WEB_EXT_ARTIFACTS_DIR }}
 
       - name: Build and sign extension
         run: |
@@ -71,35 +125,29 @@ jobs:
             --channel unlisted \
             --api-key ${{ secrets.AMO_JWT_ISSUER }} \
             --api-secret ${{ secrets.AMO_JWT_SECRET }}
-          ls -alh ${{ env.WEB_EXT_ARTIFACTS_DIR }}
+          ls -alh "$WEB_EXT_ARTIFACTS_DIR"
 
       - name: Rename signed extension
         run: |
           bash scripts/rename-xpi.sh
           ls -alh "$WEB_EXT_ARTIFACTS_DIR"
 
-      # - uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ${{ env.GECKO_ID }}
-      #     path: ${{ env.WEB_EXT_ARTIFACTS_DIR }}/${{ env.ARTIFACT_NAME }}
-
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.WEB_EXT_ARTIFACTS_DIR }}/${{ env.ARTIFACT_NAME }}
-          tag_name: v${{ env.CALVER_VERSION }}
-          name: v${{ env.CALVER_VERSION }}
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ inputs.extension }} v${{ env.CALVER_VERSION }}
 
-      - name: Update updates.json
+      - name: Update extension update manifest
         run: |
           bash scripts/update-updates.sh
 
-      - name: Git commit updates.json
+      - name: Git commit update manifest
         run: |
           git config --local user.name "GitHub Action 🤖"
           git config --local user.email "actions@github.com"
 
-          rm -rf src
-          git add ./updates.json
-          git commit -m "feat: release v${{ env.CALVER_VERSION }}"
+          git add "$UPDATES_FILE"
+          git commit -m "feat: release ${{ inputs.extension }} v${{ env.CALVER_VERSION }}"
           git push

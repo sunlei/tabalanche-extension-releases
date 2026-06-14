@@ -14,3 +14,8 @@ Run the `release` workflow manually and choose the extension to publish. The
 workflow signs the Firefox build through AMO as an unlisted extension, uploads
 the signed XPI to a GitHub Release, and appends the new version to that
 extension's update manifest.
+
+The same workflow also runs on a daily schedule. Scheduled
+runs compare each source repository's current upstream commit with
+`upstreams.json`; only extensions with upstream changes are released. The
+upstream state is updated only after the release metadata is written.

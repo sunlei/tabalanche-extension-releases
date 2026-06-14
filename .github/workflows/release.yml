@@ -1,6 +1,6 @@
 name: release
 
-run-name: release ${{ inputs.extension }}
+run-name: release ${{ inputs.extension || 'scheduled' }}
 
 on:
   workflow_dispatch:
@@ -13,25 +13,61 @@ on:
         options:
           - obsidian-clipper
           - tabalanche
+  schedule:
+    - cron: "17 18 * * *"
 
 env:
   WEB_EXT_ARTIFACTS_DIR: web-ext-artifacts
   RELEASE_BASE_URL: https://github.com/sunlei/firefox-extensions-releases/releases/download
   UPDATE_BASE_URL: https://raw.githubusercontent.com/sunlei/firefox-extensions-releases/master
+  UPSTREAMS_FILE: upstreams.json
 
 jobs:
+  select:
+    name: Select extensions
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.select.outputs.has_changes }}
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Checkout repository `self`
+        uses: actions/checkout@v6
+
+      - name: Install jq if not already installed
+        run: |
+          if ! command -v jq &> /dev/null; then
+            sudo apt update && sudo apt install -y jq
+          fi
+
+      - name: Select extensions to release
+        id: select
+        env:
+          RELEASE_EXTENSION: ${{ inputs.extension }}
+        run: |
+          bash scripts/select-release-extensions.sh
+
   publish:
-    name: Publish ${{ inputs.extension }}
+    name: Publish ${{ matrix.extension }}
+    needs: select
+    if: needs.select.outputs.has_changes == 'true'
     permissions:
       contents: write
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix: ${{ fromJson(needs.select.outputs.matrix) }}
     steps:
       - name: Checkout repository `self`
         uses: actions/checkout@v6
 
       - name: Configure extension
+        env:
+          RELEASE_EXTENSION: ${{ matrix.extension }}
         run: |
-          case "${{ inputs.extension }}" in
+          case "$RELEASE_EXTENSION" in
             obsidian-clipper)
               {
                 echo "GECKO_ID=obsidian-clipper@huaidan.org"
@@ -51,13 +87,13 @@ jobs:
               } >> "$GITHUB_ENV"
               ;;
             *)
-              echo "Unsupported extension: ${{ inputs.extension }}"
+              echo "Unsupported extension: $RELEASE_EXTENSION"
               exit 1
               ;;
           esac
 
       - name: Checkout repository `obsidian-clipper`
-        if: inputs.extension == 'obsidian-clipper'
+        if: matrix.extension == 'obsidian-clipper'
         uses: actions/checkout@v6
         with:
           repository: obsidianmd/obsidian-clipper
@@ -65,7 +101,7 @@ jobs:
           path: src
 
       - name: Checkout repository `tabalanche-extension`
-        if: inputs.extension == 'tabalanche'
+        if: matrix.extension == 'tabalanche'
         uses: actions/checkout@v6
         with:
           repository: eight04/tabalanche-extension
@@ -93,13 +129,13 @@ jobs:
           fi
 
       - name: Install Obsidian Clipper dependencies
-        if: inputs.extension == 'obsidian-clipper'
+        if: matrix.extension == 'obsidian-clipper'
         working-directory: src
         run: |
           npm ci
 
       - name: Build Obsidian Clipper Firefox extension
-        if: inputs.extension == 'obsidian-clipper'
+        if: matrix.extension == 'obsidian-clipper'
         working-directory: src
         run: |
           npm run build:firefox
@@ -137,17 +173,28 @@ jobs:
         with:
           files: ${{ env.WEB_EXT_ARTIFACTS_DIR }}/${{ env.ARTIFACT_NAME }}
           tag_name: ${{ env.RELEASE_TAG }}
-          name: ${{ inputs.extension }} v${{ env.CALVER_VERSION }}
+          name: ${{ matrix.extension }} v${{ env.CALVER_VERSION }}
+
+      - name: Sync release repository
+        run: |
+          git pull --ff-only origin master
 
       - name: Update extension update manifest
         run: |
           bash scripts/update-updates.sh
 
-      - name: Git commit update manifest
+      - name: Update upstream state
+        env:
+          RELEASE_EXTENSION: ${{ matrix.extension }}
+          UPSTREAM_SHA: ${{ matrix.upstream_sha }}
+        run: |
+          bash scripts/update-upstream-state.sh
+
+      - name: Git commit release metadata
         run: |
           git config --local user.name "GitHub Action 🤖"
           git config --local user.email "actions@github.com"
 
-          git add "$UPDATES_FILE"
-          git commit -m "feat: release ${{ inputs.extension }} v${{ env.CALVER_VERSION }}"
+          git add "$UPDATES_FILE" "$UPSTREAMS_FILE"
+          git commit -m "feat: release ${{ matrix.extension }} v${{ env.CALVER_VERSION }}"
           git push

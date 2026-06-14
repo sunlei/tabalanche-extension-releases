@@ -1,0 +1,14 @@
+{
+  "extensions": {
+    "obsidian-clipper": {
+      "repository": "obsidianmd/obsidian-clipper",
+      "ref": "main",
+      "last_seen": "372d420481745f0332a9deae4bea4f0046360b30"
+    },
+    "tabalanche": {
+      "repository": "eight04/tabalanche-extension",
+      "ref": "dev-dup",
+      "last_seen": "bce670e1443580a00cb24375e88e04d9526f0bea"
+    }
+  }
+}

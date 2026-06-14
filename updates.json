@@ -13,6 +13,10 @@
         {
           "version": "2025.7.17.546",
           "update_link": "https://github.com/sunlei/tabalanche-extension-releases/releases/download/v2025.7.17.546/tabalanche-2025.7.17.546.xpi"
+        },
+        {
+          "version": "2026.6.14.1539",
+          "update_link": "https://github.com/sunlei/tabalanche-extension-releases/releases/download/v2026.6.14.1539/tabalanche-2026.6.14.1539.xpi"
         }
       ]
     }

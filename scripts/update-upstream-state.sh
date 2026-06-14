@@ -16,34 +16,17 @@ if ! jq --exit-status --arg extension "$RELEASE_EXTENSION" '.extensions[$extensi
 fi
 
 TMP_UPSTREAMS_FILE=$(mktemp)
+VERSION_BUILD_JSON="${VERSION_BUILD:-null}"
 
 jq \
     --arg extension "$RELEASE_EXTENSION" \
     --arg upstream_sha "$UPSTREAM_SHA" \
-    '.extensions[$extension].last_seen = $upstream_sha' \
+    --arg upstream_version "${UPSTREAM_VERSION:-}" \
+    --argjson version_build "$VERSION_BUILD_JSON" \
+    '.extensions[$extension].last_seen = $upstream_sha
+    | if $upstream_version == "" then . else .extensions[$extension].last_upstream_version = $upstream_version end
+    | if $version_build == null then . else .extensions[$extension].version_build = $version_build end' \
     "$UPSTREAMS_FILE" >"$TMP_UPSTREAMS_FILE"
 mv "$TMP_UPSTREAMS_FILE" "$UPSTREAMS_FILE"
-
-if [ -n "${UPSTREAM_VERSION:-}" ]; then
-    TMP_UPSTREAMS_FILE=$(mktemp)
-
-    jq \
-        --arg extension "$RELEASE_EXTENSION" \
-        --arg upstream_version "$UPSTREAM_VERSION" \
-        '.extensions[$extension].last_upstream_version = $upstream_version' \
-        "$UPSTREAMS_FILE" >"$TMP_UPSTREAMS_FILE"
-    mv "$TMP_UPSTREAMS_FILE" "$UPSTREAMS_FILE"
-fi
-
-if [ -n "${VERSION_BUILD:-}" ]; then
-    TMP_UPSTREAMS_FILE=$(mktemp)
-
-    jq \
-        --arg extension "$RELEASE_EXTENSION" \
-        --argjson version_build "$VERSION_BUILD" \
-        '.extensions[$extension].version_build = $version_build' \
-        "$UPSTREAMS_FILE" >"$TMP_UPSTREAMS_FILE"
-    mv "$TMP_UPSTREAMS_FILE" "$UPSTREAMS_FILE"
-fi
 
 cat "$UPSTREAMS_FILE"

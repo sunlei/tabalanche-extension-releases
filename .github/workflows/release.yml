@@ -16,6 +16,10 @@ on:
   schedule:
     - cron: "17 18 * * *"
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   WEB_EXT_ARTIFACTS_DIR: web-ext-artifacts
   RELEASE_BASE_URL: https://github.com/sunlei/firefox-extensions-releases/releases/download
@@ -67,47 +71,13 @@ jobs:
         env:
           RELEASE_EXTENSION: ${{ matrix.extension }}
         run: |
-          case "$RELEASE_EXTENSION" in
-            obsidian-clipper)
-              {
-                echo "GECKO_ID=obsidian-clipper@huaidan.org"
-                echo "ARTIFACT_PREFIX=obsidian-clipper"
-                echo "EXTENSION_SOURCE_DIR=src/dist_firefox"
-                echo "UPDATES_FILE=updates/obsidian-clipper.json"
-                echo "UPDATE_URL=$UPDATE_BASE_URL/updates/obsidian-clipper.json"
-                echo "VERSION_SOURCE=package-json"
-              } >> "$GITHUB_ENV"
-              ;;
-            tabalanche)
-              {
-                echo "GECKO_ID=tabalanche-extension@huaidan.org"
-                echo "ARTIFACT_PREFIX=tabalanche"
-                echo "EXTENSION_SOURCE_DIR=src/src"
-                echo "UPDATES_FILE=updates/tabalanche.json"
-                echo "UPDATE_URL=$UPDATE_BASE_URL/updates/tabalanche.json"
-                echo "VERSION_SOURCE=calver"
-              } >> "$GITHUB_ENV"
-              ;;
-            *)
-              echo "Unsupported extension: $RELEASE_EXTENSION"
-              exit 1
-              ;;
-          esac
+          bash scripts/configure-extension.sh
 
-      - name: Checkout repository `obsidian-clipper`
-        if: matrix.extension == 'obsidian-clipper'
+      - name: Checkout repository `${{ matrix.extension }}`
         uses: actions/checkout@v6
         with:
-          repository: obsidianmd/obsidian-clipper
-          ref: main
-          path: src
-
-      - name: Checkout repository `tabalanche-extension`
-        if: matrix.extension == 'tabalanche'
-        uses: actions/checkout@v6
-        with:
-          repository: eight04/tabalanche-extension
-          ref: dev-dup
+          repository: ${{ matrix.repository }}
+          ref: ${{ matrix.ref }}
           path: src
 
       - name: Setup pnpm
@@ -185,8 +155,6 @@ jobs:
         env:
           RELEASE_EXTENSION: ${{ matrix.extension }}
           UPSTREAM_SHA: ${{ matrix.upstream_sha }}
-          UPSTREAM_VERSION: ${{ env.UPSTREAM_VERSION }}
-          VERSION_BUILD: ${{ env.VERSION_BUILD }}
         run: |
           bash scripts/update-upstream-state.sh
 

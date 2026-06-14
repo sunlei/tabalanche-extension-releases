@@ -52,13 +52,17 @@ current_upstream_sha() {
 append_extension() {
     local extension="$1"
     local upstream_sha="$2"
+    local repository="$3"
+    local ref="$4"
     local tmp_file
 
     tmp_file=$(mktemp)
     jq \
         --arg extension "$extension" \
         --arg upstream_sha "$upstream_sha" \
-        '. + [{"extension": $extension, "upstream_sha": $upstream_sha}]' \
+        --arg repository "$repository" \
+        --arg ref "$ref" \
+        '. + [{"extension": $extension, "upstream_sha": $upstream_sha, "repository": $repository, "ref": $ref}]' \
         "$INCLUDE_FILE" >"$tmp_file"
     mv "$tmp_file" "$INCLUDE_FILE"
 }
@@ -82,13 +86,13 @@ select_extension() {
 
     if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
         echo "$extension: selected manually at $upstream_sha"
-        append_extension "$extension" "$upstream_sha"
+        append_extension "$extension" "$upstream_sha" "$repository" "$ref"
         return
     fi
 
     if [ "$upstream_sha" != "$last_seen" ]; then
         echo "$extension: upstream changed $last_seen -> $upstream_sha"
-        append_extension "$extension" "$upstream_sha"
+        append_extension "$extension" "$upstream_sha" "$repository" "$ref"
     else
         echo "$extension: no upstream changes at $upstream_sha"
     fi
@@ -119,7 +123,7 @@ if [ "$selected_count" -gt 0 ]; then
     matrix=$(jq --compact-output '{include: .}' "$INCLUDE_FILE")
 else
     has_changes=false
-    matrix='{"include":[{"extension":"noop","upstream_sha":""}]}'
+    matrix='{"include":[{"extension":"noop","upstream_sha":"","repository":"","ref":""}]}'
 fi
 
 {

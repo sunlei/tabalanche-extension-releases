@@ -19,7 +19,7 @@ jq --raw-output \
     --arg GECKO_ID "${GECKO_ID}" \
     --arg RELEASE_VERSION "${RELEASE_VERSION}" \
     --arg XPI_URL "${XPI_URL}" \
-    '.addons[$GECKO_ID].updates = ((.addons[$GECKO_ID].updates // []) + [{"version": $RELEASE_VERSION, "update_link": $XPI_URL }])' \
+    '.addons[$GECKO_ID].updates = (((.addons[$GECKO_ID].updates // []) | map(select(.version != $RELEASE_VERSION))) + [{"version": $RELEASE_VERSION, "update_link": $XPI_URL }])' \
     "$UPDATES_FILE" >"$TMP_UPDATES_FILE"
 mv "$TMP_UPDATES_FILE" "$UPDATES_FILE"
 

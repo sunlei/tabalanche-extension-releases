@@ -3,14 +3,23 @@
     "obsidian-clipper": {
       "repository": "obsidianmd/obsidian-clipper",
       "ref": "main",
-      "last_seen": "",
+      "gecko_id": "obsidian-clipper@huaidan.org",
+      "artifact_prefix": "obsidian-clipper",
+      "source_dir": "src/dist_firefox",
+      "updates_file": "updates/obsidian-clipper.json",
       "version_source": "package-json",
+      "last_seen": "",
       "last_upstream_version": "",
       "version_build": 0
     },
     "tabalanche": {
       "repository": "eight04/tabalanche-extension",
       "ref": "dev-dup",
+      "gecko_id": "tabalanche-extension@huaidan.org",
+      "artifact_prefix": "tabalanche",
+      "source_dir": "src/src",
+      "updates_file": "updates/tabalanche.json",
+      "version_source": "calver",
       "last_seen": "bce670e1443580a00cb24375e88e04d9526f0bea"
     }
   }

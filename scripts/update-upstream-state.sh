@@ -24,4 +24,26 @@ jq \
     "$UPSTREAMS_FILE" >"$TMP_UPSTREAMS_FILE"
 mv "$TMP_UPSTREAMS_FILE" "$UPSTREAMS_FILE"
 
+if [ -n "${UPSTREAM_VERSION:-}" ]; then
+    TMP_UPSTREAMS_FILE=$(mktemp)
+
+    jq \
+        --arg extension "$RELEASE_EXTENSION" \
+        --arg upstream_version "$UPSTREAM_VERSION" \
+        '.extensions[$extension].last_upstream_version = $upstream_version' \
+        "$UPSTREAMS_FILE" >"$TMP_UPSTREAMS_FILE"
+    mv "$TMP_UPSTREAMS_FILE" "$UPSTREAMS_FILE"
+fi
+
+if [ -n "${VERSION_BUILD:-}" ]; then
+    TMP_UPSTREAMS_FILE=$(mktemp)
+
+    jq \
+        --arg extension "$RELEASE_EXTENSION" \
+        --argjson version_build "$VERSION_BUILD" \
+        '.extensions[$extension].version_build = $version_build' \
+        "$UPSTREAMS_FILE" >"$TMP_UPSTREAMS_FILE"
+    mv "$TMP_UPSTREAMS_FILE" "$UPSTREAMS_FILE"
+fi
+
 cat "$UPSTREAMS_FILE"

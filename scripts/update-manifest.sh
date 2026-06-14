@@ -7,16 +7,28 @@ set -o pipefail
 
 MANIFEST_PATH="${EXTENSION_SOURCE_DIR:-src}/manifest.json"
 
+: "${GECKO_ID:?}"
+: "${RELEASE_VERSION:?}"
+: "${UPDATE_URL:?}"
+
 # Delete `key`
 jq 'del(.key)' "$MANIFEST_PATH" >/tmp/manifest.json
 mv /tmp/manifest.json "$MANIFEST_PATH"
 
 # Update `version`
 jq \
-    --arg version "$CALVER_VERSION" \
+    --arg version "$RELEASE_VERSION" \
     '.version = $version' \
     "$MANIFEST_PATH" >/tmp/manifest.json
 mv /tmp/manifest.json "$MANIFEST_PATH"
+
+if [ -n "${RELEASE_VERSION_NAME:-}" ]; then
+    jq \
+        --arg version_name "$RELEASE_VERSION_NAME" \
+        '.version_name = $version_name' \
+        "$MANIFEST_PATH" >/tmp/manifest.json
+    mv /tmp/manifest.json "$MANIFEST_PATH"
+fi
 
 # Update `gecko.id`
 jq \

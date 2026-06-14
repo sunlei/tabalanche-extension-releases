@@ -19,3 +19,8 @@ The same workflow also runs on a daily schedule. Scheduled
 runs compare each source repository's current upstream commit with
 `upstreams.json`; only extensions with upstream changes are released. The
 upstream state is updated only after the release metadata is written.
+
+Obsidian Clipper uses the upstream `package.json` version for Firefox's update
+version. If upstream commits change without a version bump, the workflow appends
+a fourth numeric build part, such as `1.6.3.1`, while keeping `version_name` at
+the upstream version, such as `1.6.3`.

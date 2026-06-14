@@ -75,6 +75,7 @@ jobs:
                 echo "EXTENSION_SOURCE_DIR=src/dist_firefox"
                 echo "UPDATES_FILE=updates/obsidian-clipper.json"
                 echo "UPDATE_URL=$UPDATE_BASE_URL/updates/obsidian-clipper.json"
+                echo "VERSION_SOURCE=package-json"
               } >> "$GITHUB_ENV"
               ;;
             tabalanche)
@@ -84,6 +85,7 @@ jobs:
                 echo "EXTENSION_SOURCE_DIR=src/src"
                 echo "UPDATES_FILE=updates/tabalanche.json"
                 echo "UPDATE_URL=$UPDATE_BASE_URL/updates/tabalanche.json"
+                echo "VERSION_SOURCE=calver"
               } >> "$GITHUB_ENV"
               ;;
             *)
@@ -140,15 +142,11 @@ jobs:
         run: |
           npm run build:firefox
 
-      - name: Set version
+      - name: Set release version
+        env:
+          RELEASE_EXTENSION: ${{ matrix.extension }}
         run: |
-          TIME_VERSION=$((10#$(date +'%H') * 10000 + 10#$(date +'%M') * 100 + 10#$(date +'%S')))
-          CALVER_VERSION="$(date +'%Y.%-m.%-d').${TIME_VERSION}"
-          {
-            echo "CALVER_VERSION=${CALVER_VERSION}"
-            echo "ARTIFACT_NAME=${ARTIFACT_PREFIX}-${CALVER_VERSION}.xpi"
-            echo "RELEASE_TAG=${ARTIFACT_PREFIX}-v${CALVER_VERSION}"
-          } >> "$GITHUB_ENV"
+          bash scripts/set-release-version.sh
 
       - name: Update manifest.json
         run: |
@@ -173,7 +171,7 @@ jobs:
         with:
           files: ${{ env.WEB_EXT_ARTIFACTS_DIR }}/${{ env.ARTIFACT_NAME }}
           tag_name: ${{ env.RELEASE_TAG }}
-          name: ${{ matrix.extension }} v${{ env.CALVER_VERSION }}
+          name: ${{ env.RELEASE_NAME }}
 
       - name: Sync release repository
         run: |
@@ -187,6 +185,8 @@ jobs:
         env:
           RELEASE_EXTENSION: ${{ matrix.extension }}
           UPSTREAM_SHA: ${{ matrix.upstream_sha }}
+          UPSTREAM_VERSION: ${{ env.UPSTREAM_VERSION }}
+          VERSION_BUILD: ${{ env.VERSION_BUILD }}
         run: |
           bash scripts/update-upstream-state.sh
 
@@ -196,5 +196,5 @@ jobs:
           git config --local user.email "actions@github.com"
 
           git add "$UPDATES_FILE" "$UPSTREAMS_FILE"
-          git commit -m "feat: release ${{ matrix.extension }} v${{ env.CALVER_VERSION }}"
+          git commit -m "feat: release ${{ matrix.extension }} v${{ env.RELEASE_VERSION }}"
           git push

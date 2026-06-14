@@ -3,7 +3,10 @@
     "obsidian-clipper": {
       "repository": "obsidianmd/obsidian-clipper",
       "ref": "main",
-      "last_seen": "372d420481745f0332a9deae4bea4f0046360b30"
+      "last_seen": "",
+      "version_source": "package-json",
+      "last_upstream_version": "",
+      "version_build": 0
     },
     "tabalanche": {
       "repository": "eight04/tabalanche-extension",

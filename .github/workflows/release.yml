@@ -104,6 +104,7 @@ jobs:
         if: matrix.extension == 'obsidian-clipper'
         working-directory: src
         run: |
+          npm install --package-lock-only --no-audit --no-fund
           npm ci
 
       - name: Build Obsidian Clipper Firefox extension

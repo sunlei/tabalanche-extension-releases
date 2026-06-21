@@ -37,7 +37,7 @@ jobs:
       matrix: ${{ steps.select.outputs.matrix }}
     steps:
       - name: Checkout repository `self`
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install jq if not already installed
         run: |
@@ -65,7 +65,7 @@ jobs:
       matrix: ${{ fromJson(needs.select.outputs.matrix) }}
     steps:
       - name: Checkout repository `self`
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Configure extension
         env:
@@ -74,7 +74,7 @@ jobs:
           bash scripts/configure-extension.sh
 
       - name: Checkout repository `${{ matrix.extension }}`
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: ${{ matrix.repository }}
           ref: ${{ matrix.ref }}
